@@ -6,3 +6,4 @@ React = require('react');
 
 // put components here
 DemoComponent = require('./components/DemoComponent');
+Container = require('./components/Container');
