@@ -1,0 +1,35 @@
+{
+  "name": "sandbox-browserify",
+  "devDependencies": {
+    "browserify": "~>6.3",
+    "jest-cli": "^0.2.0",
+    "react": "^0.12.0",
+    "react-tools": "^0.12.1",
+    "reactify": "^0.17.1"
+  },
+  "license": "All Code Copyright (c) Tribune Publishing",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "node ./node_modules/jest-cli/bin/jest.js"
+  },
+  "jest": {
+    "rootDir": "./app/assets/javascripts/components",
+    "scriptPreprocessor": "<rootDir>/__tests__/preprocessor.js",
+    "moduleFileExtensions": [
+      "js",
+      "jsx"
+    ],
+    "unmockedModulePathPatterns": [
+      "react"
+    ],
+    "testFileExtensions": [
+      "js",
+      "jsx"
+    ],
+    "testPathIgnorePatterns": [
+      "preprocessor.js"
+    ]
+  }
+}
