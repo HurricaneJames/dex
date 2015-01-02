@@ -71,7 +71,7 @@ var Container = React.createClass({ displayName: "Container",
   onDragStart: function(e) {
     var selectedIndex = parseInt(e.currentTarget.dataset.key);
     e.dataTransfer.effectAllowed = ALLOWED_DROP_EFFECT;
-    e.dataTransfer.setData(DRAG_DROP_CONTENT_TYPE, this.state.items[selectedIndex]);
+    e.dataTransfer.setData(DRAG_DROP_CONTENT_TYPE, JSON.stringify(this.state.items[selectedIndex]));
 
     this.setState({ selected: selectedIndex });
   },
@@ -88,7 +88,7 @@ var Container = React.createClass({ displayName: "Container",
     }
   },
   onDrop: function(e) {
-    var data   = e.dataTransfer.getData(DRAG_DROP_CONTENT_TYPE);
+    var data = JSON.parse(e.dataTransfer.getData(DRAG_DROP_CONTENT_TYPE));
     if(this.state.hoverOver !== NO_HOVER) {
       this.state.items.splice(this.state.hoverOver, 0, data);
       if(this.state.selected > this.state.hoverOver) {
