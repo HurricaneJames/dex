@@ -5,7 +5,8 @@
     "jest-cli": "^0.2.0",
     "react": "^0.12.0",
     "react-tools": "^0.12.1",
-    "reactify": "^0.17.1"
+    "reactify": "^0.17.1",
+    "es6-set": "^0.1.1"
   },
   "license": "All Code Copyright (c) Tribune Publishing",
   "engines": {

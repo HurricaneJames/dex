@@ -1,5 +1,6 @@
 var React       = require('react')
-  , merge       = require('./ObjectMerge');
+  , merge       = require('./ObjectMerge')
+  , Set         = require('es6-set');
 
 var DRAG_DROP_CONTENT_TYPE = "custom_container_type"
   , ALLOWED_DROP_EFFECT = "move"
@@ -61,7 +62,8 @@ var Container = React.createClass({ displayName: "Container",
     return {
       items: this.props.items,
       selected:  new Set(),
-      hoverOver: NO_HOVER
+      hoverOver: NO_HOVER,
+      dragActive: false
     };
   },
   getSelectedItems: function() {
@@ -100,34 +102,24 @@ var Container = React.createClass({ displayName: "Container",
     this.state.selected.add(selectedIndex);
     e.dataTransfer.effectAllowed = ALLOWED_DROP_EFFECT;
     e.dataTransfer.setData(DRAG_DROP_CONTENT_TYPE, JSON.stringify(this.getSelectedItems()));
-    this.setState({ selected: this.state.selected });
+    this.setState({ selected: this.state.selected, dragActive: true });
   },
   onDragEnd: function(e) {
     if(e.dataTransfer.dropEffect === ALLOWED_DROP_EFFECT) {
       this.removeSelectedItems();
       this.state.hoverOver = NO_HOVER;
       this.state.selected.clear();
+      this.state.dragActive = false;
       this.setState(this.state);
       return;
     }
     if(this.state.hoverOver !== NO_HOVER || this.state.selected.size !== 0) {
       this.state.selected.clear();
-      this.setState({ hoverOver: NO_HOVER, selected: this.state.selected });
+      this.setState({ hoverOver: NO_HOVER, selected: this.state.selected, dragActive: false });
     }
   },
-  areDroppedItemsFromThisContainer: function(droppedItems) {
-    // assumption: only transferring items from one container, not multiple containers
-    // check to see if any of the selected items are in the dropped items
-    var _this = this
-      , lookingFor = JSON.stringify(droppedItems[0])
-      , match = false;
-    this.state.selected.forEach(function(itemId) {
-      if(!match && lookingFor === JSON.stringify(_this.state.items[itemId])) { match = true; }
-    });
-    return match;
-  },
   correctSelectedAfterDrop: function(droppedItems) {
-    if(this.areDroppedItemsFromThisContainer(droppedItems)) {
+    if(this.state.dragActive) {
       // need to bump selected pointers to point account for data added by onDrop
       var _this = this
         , bumpSet = []
