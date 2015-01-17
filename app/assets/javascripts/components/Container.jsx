@@ -2,6 +2,9 @@ var React       = require('react')
   , merge       = require('./ObjectMerge')
   , Set         = require('es6-set');
 
+// Yeah, this is bad, but so is not having a toArray conversion method...
+Set.prototype.toArray = Set.prototype.toArray || function customES6SetToArray() { var items=[]; this.forEach(function(item) { items.push(item); }); return items; };
+
 var DRAG_DROP_CONTENT_TYPE = "custom_container_type"
   , ALLOWED_DROP_EFFECT = "move"
   , HOVER_KEY = -1
@@ -67,22 +70,13 @@ var Container = React.createClass({ displayName: "Container",
     };
   },
   getSelectedItems: function() {
-    var _this = this
-      , items = [];
-    this.state.selected.forEach(function(itemIndex) {
-      items.push(_this.state.items[itemIndex]);
-    });
-    return items;
+    return this.state.selected.toArray().sort().map(function(itemIndex) { return this.state.items[itemIndex]; }, this);
   },
   removeSelectedItems: function() {
-    var _this = this
-      , removeSet = []
-      , items = []
-    this.state.selected.forEach(function(itemIndex) { removeSet.push(itemIndex); });
-    removeSet.sort().reverse().map(function(itemId) {
-      return _this.state.items.splice(itemId, 1);
-    });
-    return items;
+    return this.state.selected.toArray().sort().reverse().map(function(itemId) { return this.state.items.splice(itemId, 1); }, this);
+  },
+  toggleSelectedItem: function(selectedIndex) {
+    return this.state.selected.has(selectedIndex) ? this.state.selected.delete(selectedIndex) : this.state.selected.add(selectedIndex);
   },
   containerAcceptsDropData: function(transferTypes) {
     // allow drag between custom containers (note: eventually will need to implement something based on the items themselves)
@@ -90,11 +84,7 @@ var Container = React.createClass({ displayName: "Container",
   },
   onClickOnListItem: function(e) {
     var selectedIndex = parseInt(e.currentTarget.dataset.key);
-    if(this.state.selected.has(selectedIndex)) {
-      this.state.selected.delete(selectedIndex);
-    }else {
-      this.state.selected.add(selectedIndex);
-    }
+    this.toggleSelectedItem(selectedIndex);
     this.setState({ selected: this.state.selected });
   },
   onDragStart: function(e) {
@@ -107,10 +97,13 @@ var Container = React.createClass({ displayName: "Container",
   onDragEnd: function(e) {
     if(e.dataTransfer.dropEffect === ALLOWED_DROP_EFFECT) {
       this.removeSelectedItems();
-      this.state.hoverOver = NO_HOVER;
       this.state.selected.clear();
-      this.state.dragActive = false;
-      this.setState(this.state);
+      this.setState({
+        items:    this.state.items,
+        selected: this.state.selected,
+        hoverOver: NO_HOVER,
+        dragActive: false
+      });
       return;
     }
     if(this.state.hoverOver !== NO_HOVER || this.state.selected.size !== 0) {
@@ -121,17 +114,11 @@ var Container = React.createClass({ displayName: "Container",
   correctSelectedAfterDrop: function(droppedItems) {
     if(this.state.dragActive) {
       // need to bump selected pointers to point account for data added by onDrop
-      var _this = this
-        , bumpSet = []
+      var bumpSet = []
         , bumpBy  = droppedItems.length;
-      this.state.selected.forEach(function(itemId) {
-        if(itemId > _this.state.hoverOver) { bumpSet.push(itemId); }
-      });
-      bumpSet.forEach(function(itemId) {
-        // potentially better to convert to ranges
-        _this.state.selected.delete(itemId);
-        _this.state.selected.add(itemId+bumpBy);
-      });
+      this.state.selected.forEach(function(itemId) { if(itemId >= this.state.hoverOver) { bumpSet.push(itemId); } }, this);
+      bumpSet.forEach(function(itemId) { this.state.selected.delete(itemId); }, this);
+      bumpSet.forEach(function(itemId) { this.state.selected.add(itemId + bumpBy); }, this);
     }
   },
   onDrop: function(e) {
@@ -139,8 +126,11 @@ var Container = React.createClass({ displayName: "Container",
     if(this.state.hoverOver !== NO_HOVER) {
       Array.prototype.splice.apply(this.state.items, [this.state.hoverOver, 0].concat(data));
       this.correctSelectedAfterDrop(data);
-      this.state.hoverOver = NO_HOVER;
-      this.setState(this.state);
+      this.setState({
+        items: this.state.items,
+        selected: this.state.selected,
+        hoverOver: NO_HOVER
+      });
     }
   },
   onDragOverItem: function(e) {
