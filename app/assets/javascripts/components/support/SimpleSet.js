@@ -1,4 +1,15 @@
-var SimpleSet = (function () {
+// Use the full ES6 Set when possible and backfill with a simple set implementation if not.
+
+function canUseES6Set() {
+  return Set.prototype.has !== undefined &&
+         Set.prototype.add !== undefined &&
+         Set.prototype.delete !== undefined &&
+         Set.prototype.clear !== undefined &&
+         Set.prototype.hasOwnProperty('size') &&
+         Set.prototype.forEach !== undefined;
+}
+
+var SimpleSet = canUseES6Set() ? Set : (function () {
   var array;
   var SimpleSet = defclass({
     constructor: function (array) {
