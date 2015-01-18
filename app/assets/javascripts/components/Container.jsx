@@ -1,9 +1,6 @@
 var React       = require('react')
   , merge       = require('./ObjectMerge')
-  , Set         = require('es6-set');
-
-// Yeah, this is bad, but so is not having a toArray conversion method...
-Set.prototype.toArray = Set.prototype.toArray || function customES6SetToArray() { var items=[]; this.forEach(function(item) { items.push(item); }); return items; };
+  , Set         = require('./support/SimpleSet');
 
 var DRAG_DROP_CONTENT_TYPE = "custom_container_type"
   , ALLOWED_DROP_EFFECT = "move"
