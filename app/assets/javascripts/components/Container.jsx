@@ -80,12 +80,12 @@ var Container = React.createClass({ displayName: "Container",
     return Array.prototype.indexOf.call(transferTypes, DRAG_DROP_CONTENT_TYPE) !== -1;
   },
   onClickOnListItem: function(e) {
-    var selectedIndex = parseInt(e.currentTarget.dataset.key);
+    var selectedIndex = parseInt(e.currentTarget.getAttribute('data-key'));
     this.toggleSelectedItem(selectedIndex);
     this.setState({ selected: this.state.selected });
   },
   onDragStart: function(e) {
-    var selectedIndex = parseInt(e.currentTarget.dataset.key);
+    var selectedIndex = parseInt(e.currentTarget.getAttribute('data-key'));
     this.state.selected.add(selectedIndex);
     e.dataTransfer.effectAllowed = ALLOWED_DROP_EFFECT;
     e.dataTransfer.setData(DRAG_DROP_CONTENT_TYPE, JSON.stringify(this.getSelectedItems()));
@@ -132,13 +132,13 @@ var Container = React.createClass({ displayName: "Container",
   },
   onDragOverItem: function(e) {
     if(this.containerAcceptsDropData(e.dataTransfer.types)) { e.preventDefault(); } 
-    var over = parseInt(e.currentTarget.dataset.key);
+    var over = parseInt(e.currentTarget.getAttribute('data-key'));
     if(e.clientY - e.currentTarget.offsetTop > e.currentTarget.offsetHeight / 2) { over++; }
     if(over !== this.state.hoverOver) { this.setState({ hoverOver: over }); }
   },
   onDragOverDropZone: function(e) {
     if(this.containerAcceptsDropData(e.dataTransfer.types)) { e.preventDefault(); } 
-    var dropZoneId = parseInt(e.currentTarget.dataset.key);
+    var dropZoneId = parseInt(e.currentTarget.getAttribute('data-key'));
     if(dropZoneId !== this.state.hoverOver) { this.setState({ hoverOver: dropZoneId }); }
   },
   onDragLeaveContainer: function(e) {
@@ -154,8 +154,10 @@ var Container = React.createClass({ displayName: "Container",
     if(this.state.hoverOver !== NO_HOVER) { this.setState({ hoverOver: NO_HOVER }); }
   },
   renderDropZone: function(index) {
+    var classes = this.state.hoverOver === index ? 'container-dropZone-active' : '';
     return <li key={"dropzone-" + index}
                data-key={index}
+               className={classes}
                style={merge(styles.dropZone, this.state.hoverOver === index && styles.activeDropZone)}
                onDragOver={this.onDragOverDropZone}></li>;
   },
@@ -171,9 +173,11 @@ var Container = React.createClass({ displayName: "Container",
     return items;
   },
   renderListElement: function(item, key) {
+    var classes = this.state.selected.has(key) ? 'container-selected' : '';
     return(
       <li key={key}
           data-key={key}
+          className={classes}
           style={merge(styles.item, this.state.selected.has(key) && styles.selectedItem )}
           onClick={this.onClickOnListItem}
           draggable  ={true}
