@@ -5,8 +5,7 @@ var React       = require('react')
 var DRAG_DROP_CONTENT_TYPE = "custom_container_type"
   , ALLOWED_DROP_EFFECT = "move"
   , HOVER_KEY = -1
-  , NO_HOVER  = -1
-  , NONE_SELECTED = -1;
+  , NO_HOVER  = -1;
 
 // TODO - make this a require or a prop...
 var styles = {

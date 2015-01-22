@@ -40,5 +40,8 @@ var SimpleSet = canUseES6Set() ? Set : (function () {
   }
 }());
 
+// Good chance we are monkey patching native Set here... so, uhm, yeah
+SimpleSet.prototype.toArray = SimpleSet.prototype.toArray || function customES6SetToArray() { var items=[]; this.forEach(function(item) { items.push(item); }); return items; };
+
 if (typeof module === "object") module.exports = SimpleSet;
 if (typeof define === "function" && define.amd) define(SimpleSet);

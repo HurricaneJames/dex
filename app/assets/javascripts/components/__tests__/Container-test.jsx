@@ -22,9 +22,8 @@ describe('Container', function() {
   }
 
   it('should display items, by default, in a text template (span element)', function() {
-    var container = TestUtils.renderIntoDocument(<Container items={randomWords} />)
-      , items = TestUtils.scryRenderedDOMComponentsWithTag(container, 'span').map(function(item) { return item.getDOMNode().textContent; });
-    expect(items).toEqual(randomWords);
+    var container = TestUtils.renderIntoDocument(<Container items={randomWords} />);
+    expect(container.getDOMNode().textContent).toBe(randomWords.join(''));
   });
 
   it('should display items with a custom template', function() {
@@ -33,18 +32,29 @@ describe('Container', function() {
     expect(items).toEqual(randomWords);
   });
 
-  it('highlights item as selected when clicked', function() {
-    var container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />)
-      , item = getItemFromContainer(container, 0);
-    expect(item.props.className).toBe('');
-    TestUtils.Simulate.click(item);
-    expect(item.props.className).toBe('container-selected');
+  describe("Selecting Items", function() {
+    var container, item;
+    beforeEach(function() {
+      container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />)
+      item      = getItemFromContainer(container, 0);
+    });
+
+    it('highlights item as selected when clicked', function() {
+      expect(item.props.className).toBe('');
+      TestUtils.Simulate.click(item);
+      expect(item.props.className).toBe('container-selected');
+    });
+
+    it('does not highlight items when they are un-selected', function() {
+      TestUtils.Simulate.click(item);
+      TestUtils.Simulate.click(item);
+      expect(item.props.className).toBe('');
+    });
   });
 
   it('should mark items as draggable', function() {
-    var container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />)
-      , item = getItemFromContainer(container, 0);
-    expect(item.getDOMNode().getAttribute('draggable')).toBeTruthy();
+    var container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />);
+    expect(getItemFromContainer(container, 0).getDOMNode().getAttribute('draggable')).toBeTruthy();
   });
 
   describe("Drag Start", function() {
@@ -54,8 +64,14 @@ describe('Container', function() {
       container        = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />)
       item             = getItemFromContainer(container, 0);
     })
-    it('highlights item as selected with dragged', function() {
+    it('highlights item as selected when dragged', function() {
       expect(item.props.className).toBe('');
+      TestUtils.Simulate.dragStart(item, { dataTransfer: mockDataTransfer });
+      expect(item.props.className).toBe('container-selected');
+    });
+    it('shoudl keep previously selected items as selected when dragged', function() {
+      TestUtils.Simulate.click(item);
+      expect(item.props.className).toBe('container-selected');
       TestUtils.Simulate.dragStart(item, { dataTransfer: mockDataTransfer });
       expect(item.props.className).toBe('container-selected');
     });
@@ -74,7 +90,10 @@ describe('Container', function() {
   describe('Drag Over', function() {
     var container, item, dropZoneAbove, dropZoneBelow, mockEvent;
     beforeEach(function() {
-      mockEvent     = { dataTransfer: { types: CONTAINER_TYPE } }
+      mockEvent     = {
+        dataTransfer: { types: [CONTAINER_TYPE] },
+        preventDefault: jest.genMockFunction()
+      }
       container     = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />);
       overItem      = getItemFromContainer(container, 2)
       dropZoneAbove = getDropZone(container, 2)
@@ -85,6 +104,7 @@ describe('Container', function() {
       expect(dropZone.props.className).toBe('');
       TestUtils.Simulate.dragOver(dropZone, mockEvent);
       expect(dropZone.props.className).toBe(CONTAINER_DROP_ZONE_ACTIVE);
+      expect(mockEvent.preventDefault).toBeCalled();
     });
     it('shows previous drop zone when hovering over top half of item', function() {
       mockEvent.clientY = 2;
@@ -96,6 +116,7 @@ describe('Container', function() {
       TestUtils.Simulate.dragOver(overItem, mockEvent);
       expect(dropZoneAbove.props.className).toBe(CONTAINER_DROP_ZONE_ACTIVE);
       expect(dropZoneBelow.props.className).toBe('');
+      expect(mockEvent.preventDefault).toBeCalled();
     });
     it('shows next drop zone when hovering over bottom half of item', function() {
       mockEvent.clientY = 7
@@ -107,6 +128,7 @@ describe('Container', function() {
       TestUtils.Simulate.dragOver(overItem, mockEvent);
       expect(dropZoneAbove.props.className).toBe('');
       expect(dropZoneBelow.props.className).toBe(CONTAINER_DROP_ZONE_ACTIVE);
+      expect(mockEvent.preventDefault).toBeCalled();
     });
 
     it("should clear any active drop zones when the dragged item leaves the container", function() {
@@ -129,7 +151,7 @@ describe('Container', function() {
     beforeEach(function() {
       container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords.slice(0)} />);
       overItem  = getDropZone(container, randomWords.length)
-      mockEvent = { dataTransfer: { types: CONTAINER_TYPE } }
+      mockEvent = { dataTransfer: { types: [CONTAINER_TYPE] } }
     });
     it('adds dropped items to currently selected drop zone', function() {
         var randomDropWords = '["peaches", "cream"]';
