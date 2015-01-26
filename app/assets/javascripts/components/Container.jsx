@@ -1,5 +1,5 @@
 var React       = require('react')
-  , merge       = require('./ObjectMerge')
+  , merge       = require('./support/ObjectMerge')
   , Set         = require('./support/SimpleSet');
 
 var DRAG_DROP_CONTENT_TYPE = "custom_container_type"
@@ -130,13 +130,15 @@ var Container = React.createClass({ displayName: "Container",
     }
   },
   onDragOverItem: function(e) {
-    if(this.containerAcceptsDropData(e.dataTransfer.types)) { e.preventDefault(); } 
+    if(!this.containerAcceptsDropData(e.dataTransfer.types)) { return; } 
+    e.preventDefault();
     var over = parseInt(e.currentTarget.getAttribute('data-key'));
     if(e.clientY - e.currentTarget.offsetTop > e.currentTarget.offsetHeight / 2) { over++; }
     if(over !== this.state.hoverOver) { this.setState({ hoverOver: over }); }
   },
   onDragOverDropZone: function(e) {
-    if(this.containerAcceptsDropData(e.dataTransfer.types)) { e.preventDefault(); } 
+    if(!this.containerAcceptsDropData(e.dataTransfer.types)) { return; }
+    e.preventDefault();
     var dropZoneId = parseInt(e.currentTarget.getAttribute('data-key'));
     if(dropZoneId !== this.state.hoverOver) { this.setState({ hoverOver: dropZoneId }); }
   },

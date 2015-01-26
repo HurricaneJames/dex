@@ -5,7 +5,8 @@
     "jest-cli": "^0.2.0",
     "react": "^0.12.0",
     "react-tools": "^0.12.1",
-    "reactify": "^0.17.1"
+    "reactify": "^0.17.1",
+    "immutable": "^3.6.2"
   },
   "license": "The MIT License (c) Tribune Publishing",
   "engines": {
