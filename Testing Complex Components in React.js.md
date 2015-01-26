@@ -124,9 +124,11 @@ Of course, now that we think about it, it is probably important to be sure that 
 
 ### Dragging an item should highlight the item being dragged.
 
-In the original article we "highlighted" an item using the [React: CSS in JS](https://speakerdeck.com/vjeux/react-css-in-js) technique of embedded styles. Now, we should be able to test this by calling `getDOMNode().style` or `props.style`, but neither seems to work. They both failed to return the style we set in our Container.jsx file.
+In the original article we "highlighted" an item using the [React: CSS in JS](https://speakerdeck.com/vjeux/react-css-in-js) technique of embedded styles. ~~Now, we should be able to test this by calling `getDOMNode().style` or `props.style`, but neither seems to work. They both failed to return the style we set in our Container.jsx file.~~
 
-Instead, the solution we chose was the good old `className` property. It is always painful to change working code just for the sake of testing, but sometimes there is no other choice. We can call this pain point #1.
+~~Instead, the solution we chose was the good old `className` property. It is always painful to change working code just for the sake of testing, but sometimes there is no other choice. We can call this pain point #1.~~
+
+For historical, *and stupidity* reasons, we modified the code to add a className attribute and test for that attirbute. We are keeping that solution here. See the **Changes** section at the bottom for an explanation.
 
     it('highlights item as selected when being dragged', function() {
       var container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />)
@@ -182,7 +184,9 @@ This test is almost the same as the last one. In fact, many devs would combine t
       return TestUtils.scryRenderedDOMComponentsWithTag(container, 'li')[2*itemId];
     }
 
-Just like our test to see if selected items were highlighted, we run into pain point #1 (no access to style properties) all over again. Again, using the className solution works. This time we simulate a `dragOver` event. 
+~~Just like our test to see if selected items were highlighted, we run into pain point #1 (no access to style properties) all over again. Again, using the className solution works. This time we simulate a `dragOver` event. ~~
+
+We are keeping the `className` solution becuase it is already done, but style is definitely accessible.
 
 Again, we need to change our code to make the test pass. This time, add the `className={this.state.hoverOver === index ? 'container-dropZone-active' : ''}` to the renderDropZone's `<li />` component.
 
@@ -337,3 +341,13 @@ Conclusion
 This article should have provided a decent description of testing a complex React component with Jest. We covered basic Jasmine syntax (`describe`, `it`, `it.only`, `expect`, `toBe`, `toEqual`, `toBeCalled`, `not`, `beforeEach`). We covered how to actually run the tests `npm test`. We saw quite a few of the React test utilities (`Simulate.[click, dragStart, dragOver, dragLeave, drop, dragEnd]`, `scryRenderedDOMComponentsWithClass`, `scryRenderedDOMComponentsWithTag`, `findRenderedDOMComponentWithTag`). We covered mocking the event data object, and some of the pain that it causes. And we gave lots of working test code as examples in the process.
 
 This article also provides a decent starting point for the next article, [Adding Multi-Select to the React Drag and Drop Container with TDD](https://reactjsnews.com). In fact, that article was originally part of this article. As the length of this article grew, it was clear it needed to be broken up a bit. On the bright side, that means there is already a draft, so it should be up in the next couple days.
+
+Changes
+-------
+So, as often happens, the solution to a problem comes to us when doing *other* things. And, as is often the case, that solution humbles us and makes us feel stupid. This is one such solution. 
+
+Originally, I argued that the `style` property was unavailable. This ruined the otherwise beautiful CSS in JS paradigm. I was wrong.
+
+The `style` property is perfectly available via `item.props.style`. However, what is not available is the `ObjectMerge` module, because we forgot to tell Jest not to auto-mock it. Since it was mocked, it does not actually merge anything. Solution, `jest.dontMock()` or move the ObjectMerge.jsxand Object.Assign.js to the `support/` directory, which is on the `unmockedModulePathPatterns` in package.json.
+
+I always try to look on the bright side of things, and there is a bright side to this story. My pain and humiliation serves as a [cautionary tale](http://www.despair.com/mistakes.html) of the to others. Auto-mocking is great, but it has some gotchas.
