@@ -2,7 +2,7 @@ Testing Drag and Drop Components in React.js
 ============================================
 Welcome back! [Last time](https://reactjsnews.com/complex-drag-and-drop-lists-using-react/) we left off with a nice little Container component that allowed dragging and dropping items both internally and between components. However, despite having the ability with our [setup](https://reactjsnews.com/setting-up-rails-for-react-and-jest/), we did not write a single test. The time has come to fix that shortcoming, with lots and lots of examples.
 
-*Note: All of the code is avaialble on GitHub in the [Dex v2.0 tag](https://github.com/HurricaneJames/dex/tree/v2.0).*
+*Note: All of the code is available on GitHub in the [Dex v2.0 tag](https://github.com/HurricaneJames/dex/tree/v2.0).*
 
 General Concepts
 ----------------
@@ -114,7 +114,7 @@ As we saw in the previous article, setting the `draggable` attribute is required
 
 As with the last test, this one starts by creating a `container`. We then use `scryRenderedDOMComponentsWithTag()` to grab all of the 'li' components, keeping the second one (the first component is a drop zone). Finally, we test for the `draggable` attribute, expecting it `toBeTruthy()`.
 
-Of course, now that we think about it, it is probably important to be sure that drop zones are not accidently marked as draggable. Normally, we would not test whether something was not marked. However, drop zones are very similar to items, so it makes sense. It also helps to reinforce that drop zones are always present and not generated during drag operations.
+Of course, now that we think about it, it is probably important to be sure that drop zones are not accidentally marked as draggable. Normally, we would not test whether something was not marked. However, drop zones are very similar to items, so it makes sense. It also helps to reinforce that drop zones are always present and not generated during drag operations.
 
     it('should not mark drop zones as draggable', function() {
       var container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />)
@@ -154,7 +154,7 @@ With these code changes, our tests now pass.
 
 ### Dragging an item should call setData in the datatransfer with the right type and data being dragged.
 
-As we saw in the last test, React TestUtils `Simulate` functions do not relicate the `dataTransfer` event property, but we can mock it on a per call basis. To work with HTML5 Drag and Drop, we must call `dataTransfer.setData()`, so it is probably a really good idea to make sure the call was made.
+As we saw in the last test, React TestUtils `Simulate` functions do not replicate the `dataTransfer` event property, but we can mock it on a per call basis. To work with HTML5 Drag and Drop, we must call `dataTransfer.setData()`, so it is probably a really good idea to make sure the call was made.
 
     var CONTAINER_TYPE = 'custom_container_type';
     it('should set the data transfer with the correct type and the items to being dragged', function() {
@@ -259,7 +259,7 @@ Notice that we are specifying the mouse position (`clientY`) and item dimensions
       expect(mockEvent.preventDefault).toBeCalled();
     });
 
-This test looks almsot identical to the last test. The only change is our mouse position (`clientY`) is now 7. We define the item to be 10px high with `offsetHeight`, so this puts the drag event in the bottom half of the item.
+This test looks almost identical to the last test. The only change is our mouse position (`clientY`) is now 7. We define the item to be 10px high with `offsetHeight`, so this puts the drag event in the bottom half of the item.
 
 Unlike the last test, this one will fail without the mouse position and item dimensions. In environments where the code does not throw an error, the wrong drop zone will be activated. Providing the mouse position and element height fix this problem.
 
