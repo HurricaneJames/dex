@@ -57,6 +57,11 @@ describe('Container', function() {
     expect(getItemFromContainer(container, 0).getDOMNode().getAttribute('draggable')).toBeTruthy();
   });
 
+  it('should not mark drop zones as draggable', function() {
+    var container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} />);
+    expect(getDropZone(container, 0).getDOMNode().getAttribute('draggable')).toBeFalsy();
+  });
+
   describe("Drag Start", function() {
     var mockDataTransfer, container, item;
     beforeEach(function() {
@@ -105,6 +110,14 @@ describe('Container', function() {
       TestUtils.Simulate.dragOver(dropZone, mockEvent);
       expect(dropZone.props.className).toBe(CONTAINER_DROP_ZONE_ACTIVE);
       expect(mockEvent.preventDefault).toBeCalled();
+    });
+    it('should not activate a dropzone when the container type is wrong', function() {
+      var dropZone = getDropZone(container, 0);
+      mockEvent.dataTransfer.types = ['bad_type'];
+      expect(dropZone.props.className).toBe('');
+      TestUtils.Simulate.dragOver(dropZone, mockEvent);
+      expect(dropZone.props.className).not.toBe(CONTAINER_DROP_ZONE_ACTIVE);
+      expect(mockEvent.preventDefault).not.toBeCalled();
     });
     it('shows previous drop zone when hovering over top half of item', function() {
       mockEvent.clientY = 2;
