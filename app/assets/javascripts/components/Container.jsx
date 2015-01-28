@@ -183,8 +183,7 @@ var Container = React.createClass({ displayName: "Container",
           onClick={this.onClickOnListItem}
           draggable  ={true}
           onDragOver ={this.onDragOverItem}
-          onDragStart={this.onDragStart}
-          onDragEnd  ={this.onDragEnd}>{item}</li>
+          onDragStart={this.onDragStart}>{item}</li>
     );
   },
   render: function() {
@@ -193,6 +192,7 @@ var Container = React.createClass({ displayName: "Container",
       <ul ref="container"
           onDrop={this.onDrop}
           onDragLeave={this.onDragLeaveContainer}
+          onDragEnd  ={this.onDragEnd}
           style={styles.container}>{items}</ul>
     );
   }
