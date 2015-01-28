@@ -61,8 +61,7 @@ var Container = React.createClass({ displayName: "Container",
     return {
       items: this.props.items,
       selected:  new Set(),
-      hoverOver: NO_HOVER,
-      dragActive: false
+      hoverOver: NO_HOVER
     };
   },
   getSelectedItems: function() {
@@ -88,7 +87,7 @@ var Container = React.createClass({ displayName: "Container",
     this.state.selected.add(selectedIndex);
     e.dataTransfer.effectAllowed = ALLOWED_DROP_EFFECT;
     e.dataTransfer.setData(DRAG_DROP_CONTENT_TYPE, JSON.stringify(this.getSelectedItems()));
-    this.setState({ selected: this.state.selected, dragActive: true });
+    this.setState({ selected: this.state.selected });
   },
   onDragEnd: function(e) {
     if(e.dataTransfer.dropEffect === ALLOWED_DROP_EFFECT) {
@@ -97,18 +96,17 @@ var Container = React.createClass({ displayName: "Container",
       this.setState({
         items:    this.state.items,
         selected: this.state.selected,
-        hoverOver: NO_HOVER,
-        dragActive: false
+        hoverOver: NO_HOVER
       });
       return;
     }
     if(this.state.hoverOver !== NO_HOVER || this.state.selected.size !== 0) {
       this.state.selected.clear();
-      this.setState({ hoverOver: NO_HOVER, selected: this.state.selected, dragActive: false });
+      this.setState({ hoverOver: NO_HOVER, selected: this.state.selected });
     }
   },
   correctSelectedAfterDrop: function(droppedItems) {
-    if(this.state.dragActive) {
+    if(this.state.hoverOver !== NO_HOVER) {
       // need to bump selected pointers to point account for data added by onDrop
       var bumpSet = []
         , bumpBy  = droppedItems.length;
