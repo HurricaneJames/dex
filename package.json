@@ -6,7 +6,8 @@
     "react": "^0.12.0",
     "react-tools": "^0.12.1",
     "reactify": "^0.17.1",
-    "immutable": "^3.6.2"
+    "immutable": "^3.6.2",
+    "react-immutable-render-mixin": "^0.8.0"
   },
   "license": "The MIT License (c) Tribune Publishing",
   "engines": {
@@ -23,7 +24,7 @@
       "jsx"
     ],
     "unmockedModulePathPatterns": [
-      "react", "support/"
+      "react", "immutable", "support/"
     ],
     "testFileExtensions": [
       "js",

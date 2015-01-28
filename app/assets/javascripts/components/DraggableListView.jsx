@@ -2,7 +2,7 @@ var React       = require('react')
   , merge       = require('./support/ObjectMerge')
 
 var ALLOWED_DROP_EFFECT = "move"
-  , NO_HOVER = null
+  , NO_DROPZONE = null
   , BLANK_FUNCTION = function() {};;
 
 // TODO - make this a require or a prop...
@@ -35,7 +35,7 @@ var styles = {
   }
 }
 
-var TextTemplate = React.createClass({ displayName: "DraggableListContainer-TextTemplate",
+var TextTemplate = React.createClass({ displayName: "DraggableListView-TextTemplate",
   propTypes: {
     item: React.PropTypes.any.isRequired
   },
@@ -44,18 +44,18 @@ var TextTemplate = React.createClass({ displayName: "DraggableListContainer-Text
   }
 });
 
-var DraggableListContainer = React.createClass({
-  displayName: "DraggableListContainer",
+var DraggableListView = React.createClass({
+  displayName: "DraggableListView",
   propTypes: {
     containerDropType:  React.PropTypes.string,
     itemTemplate:       React.PropTypes.func,
     items:              React.PropTypes.array,
     selected:           React.PropTypes.arrayOf(React.PropTypes.number),
     activeDropZone:     React.PropTypes.number,    // the currently active drop zone (default: -1)
-    onClickOnItem:      React.PropTypes.func,
-    onDragStart:        React.PropTypes.func,
-    onDropZoneActivate: React.PropTypes.func,
-    onItemsAdded:       React.PropTypes.func,
+    onClickOnItem:      React.PropTypes.func,       // onClickOnItem(itemId) where itemId is the item that was clicked
+    onDragStart:        React.PropTypes.func,       // onDragStart(itemId)   where itemId is the item that initiated the drag
+    onDropZoneActivate: React.PropTypes.func,       // onDropZoneActivate(dropZoneId) where dropZoneId is the new active dropzone id
+    onItemsAdded:       React.PropTypes.func,       // onItemsAdded(items) where items is an array of added items
     onRemoveSelected:   React.PropTypes.func
   },
   getDefaultProps: function() {
@@ -64,7 +64,7 @@ var DraggableListContainer = React.createClass({
       itemTemplate: TextTemplate,
       items: [],
       selected: [],
-      activeDropZone: NO_HOVER,
+      activeDropZone:     NO_DROPZONE,
       onClickOnItem:      BLANK_FUNCTION,
       onDragStart:        BLANK_FUNCTION,
       onDropZoneActivate: BLANK_FUNCTION,
@@ -72,8 +72,13 @@ var DraggableListContainer = React.createClass({
       onRemoveSelected:   BLANK_FUNCTION
     };
   },
+  getInitialState: function() {
+    return {};
+  },
   getSelectedItems: function(optional) {
-    return this.props.selected.concat(optional).sort().map(function(itemIndex) { return this.props.items[itemIndex]; }, this);
+    var selected = this.props.selected;
+    if(selected.indexOf(optional) === -1) { selected.push(optional); }
+    return selected.sort().map(function(itemIndex) { return this.props.items[itemIndex]; }, this);
   },
   containerAcceptsDropData: function(transferTypes) {
     return Array.prototype.indexOf.call(transferTypes, this.props.containerDropType) !== -1;
@@ -94,7 +99,7 @@ var DraggableListContainer = React.createClass({
     }
   },
   onDrop: function(e) {
-    if(this.props.activeDropZone !== NO_HOVER) {
+    if(this.props.activeDropZone !== NO_DROPZONE) {
       this.props.onItemsAdded(JSON.parse(e.dataTransfer.getData(this.props.containerDropType)));
     }
   },
@@ -125,7 +130,7 @@ var DraggableListContainer = React.createClass({
       , left   = e.currentTarget.offsetLeft
       , right  = left + e.currentTarget.offsetWidth;
     if(y <= top || y >= bottom || x <= left || x >= right) {
-      this.props.onDropZoneActivate(NO_HOVER);
+      this.props.onDropZoneActivate(NO_DROPZONE);
     }
   },
   renderDropZone: function(index) {
@@ -135,17 +140,6 @@ var DraggableListContainer = React.createClass({
                className={classes}
                style={merge(styles.dropZone, this.props.activeDropZone === index && styles.activeDropZone)}
                onDragOver={this.onDragOverDropZone}></li>;
-  },
-  renderListElements: function() {
-    var items = [];
-    for(var i=0, length=this.props.items.length;i<length;i++) {
-      items.push(this.renderDropZone(i));
-      // TODO - see if there is a performance hit when recreating these elements
-      //        if there is, create a cache of elements in the state when the items are updated
-      items.push(this.renderListElement(React.createElement(this.props.itemTemplate, { item: this.props.items[i] }), i));
-    }
-    items.push(this.renderDropZone(i));
-    return items;
   },
   renderListElement: function(item, key) {
     var classes = this.props.selected.indexOf(key) > -1 ? 'container-selected' : '';
@@ -160,6 +154,17 @@ var DraggableListContainer = React.createClass({
           onDragStart={this.onDragStart}>{item}</li>
     );
   },
+  renderListElements: function() {
+    var items = [];
+    for(var i=0, length=this.props.items.length;i<length;i++) {
+      items.push(this.renderDropZone(i));
+      // TODO - see if there is a performance hit when recreating these elements
+      //        if there is, create a cache of elements in the state when the items are updated
+      items.push(this.renderListElement(React.createElement(this.props.itemTemplate, { item: this.props.items[i] }), i));
+    }
+    items.push(this.renderDropZone(i));
+    return items;
+  },
   render: function() {
     var items = this.renderListElements();
     return (
@@ -172,4 +177,4 @@ var DraggableListContainer = React.createClass({
   }
 });
 
-module.exports = DraggableListContainer;
+module.exports = DraggableListView;

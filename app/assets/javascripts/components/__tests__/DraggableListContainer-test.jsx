@@ -1,15 +1,15 @@
 // not really a flux container, just trying to make this component stateless
 
-jest.dontMock('../DraggableListContainer');
+jest.dontMock('../DraggableListView');
 
 var randomWords = ["apple", "bannana", "watermelon", "oranges", "ice cream"]
   , CONTAINER_TYPE = 'custom_container_type'
   , CONTAINER_DROP_ZONE_ACTIVE = 'container-dropZone-active';
 
-describe('DraggableListContainer', function() {
+describe('DraggableListView', function() {
   var React = require('react/addons')
     , TestUtils = React.addons.TestUtils
-    , Container = require('../DraggableListContainer')
+    , Container = require('../DraggableListView')
     , CustomTemplate = React.createClass({
         displayName: 'CustomTemplate',
         propTypes: { item: React.PropTypes.any.isRequired },
@@ -84,6 +84,12 @@ describe('DraggableListContainer', function() {
       var item2 = getItemFromContainer(container, 1);
       TestUtils.Simulate.dragStart(item2, { dataTransfer: mockDataTransfer });
       expect(mockDataTransfer.setData).toBeCalledWith(CONTAINER_TYPE, '["apple","bannana"]');
+    });
+    it.only("should not deselect items when dragged if they are already selected", function() {
+      container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} selected={[0]} onDragStart={mockOnDragStart} />)
+      var dragItem = getItemFromContainer(container, 0);
+      TestUtils.Simulate.dragStart(dragItem, { dataTransfer: mockDataTransfer });
+      expect(mockDataTransfer.setData).toBeCalledWith(CONTAINER_TYPE, '["apple"]');
     });
   });
 

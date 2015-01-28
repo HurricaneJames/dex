@@ -1,197 +1,80 @@
-var React       = require('react')
-  , merge       = require('./support/ObjectMerge')
-  , Set         = require('./support/SimpleSet');
+var React     = require('react')
+  , Immutable = require('immutable')
+  , merge     = require('./support/ObjectMerge')
+  , Set       = Immutable.Set
+  , List      = Immutable.List
+  , DraggableListView = require('./DraggableListView')
+  , ImmutableRenderMixin = require('react-immutable-render-mixin');
 
 var DRAG_DROP_CONTENT_TYPE = "custom_container_type"
   , ALLOWED_DROP_EFFECT = "move"
-  , HOVER_KEY = -1
-  , NO_HOVER  = -1;
-
-// TODO - make this a require or a prop...
-var styles = {
-  container: {
-    maxWidth: 550,
-    background: '#cdc',
-    border: '1px solid #777',
-    listStyle: 'none',
-    margin: 0,
-    padding: 2
-  },
-  item: {
-    backgroundColor: '#df90df',
-    margin: 3,
-    padding: 3
-  },
-  selectedItem: {
-    backgroundColor: '#333'
-  },
-  dropZone: {
-    height: 2,
-    backgroundColor: 'transparent',
-    transition: 'height 400ms'
-  },
-  activeDropZone: {
-    height: 15,
-    background: '#fff',
-    transition: 'height 150ms'
-  }
-}
-
-var TextTemplate = React.createClass({ displayName: "Container-TextTemplate",
-  propTypes: {
-    item: React.PropTypes.any.isRequired
-  },
-  render: function() {
-    return <span>{this.props.item}</span>;
-  }
-});
+  , NONE_ACTIVE = -1;
 
 var Container = React.createClass({ displayName: "Container",
+  mixins: [ImmutableRenderMixin],
   propTypes: {
     items: React.PropTypes.array,
     itemTemplate: React.PropTypes.func,
   },
   getDefaultProps: function() {
-    return {
-      items: [],
-      itemTemplate: TextTemplate
-    };
+    return { items: [] };
   },
   getInitialState: function() {
     return {
-      items: this.props.items,
-      selected:  new Set(),
-      hoverOver: NO_HOVER
+      items: new List(this.props.items),
+      selected: new Set(),
+      activeDropZone: NONE_ACTIVE
     };
-  },
-  getSelectedItems: function() {
-    return this.state.selected.toArray().sort().map(function(itemIndex) { return this.state.items[itemIndex]; }, this);
-  },
-  removeSelectedItems: function() {
-    return this.state.selected.toArray().sort().reverse().map(function(itemId) { return this.state.items.splice(itemId, 1); }, this);
   },
   toggleSelectedItem: function(selectedIndex) {
     return this.state.selected.has(selectedIndex) ? this.state.selected.delete(selectedIndex) : this.state.selected.add(selectedIndex);
   },
-  containerAcceptsDropData: function(transferTypes) {
-    // allow drag between custom containers (note: eventually will need to implement something based on the items themselves)
-    return Array.prototype.indexOf.call(transferTypes, DRAG_DROP_CONTENT_TYPE) !== -1;
-  },
-  onClickOnListItem: function(e) {
-    var selectedIndex = parseInt(e.currentTarget.getAttribute('data-key'));
-    this.toggleSelectedItem(selectedIndex);
-    this.setState({ selected: this.state.selected });
-  },
-  onDragStart: function(e) {
-    var selectedIndex = parseInt(e.currentTarget.getAttribute('data-key'));
-    this.state.selected.add(selectedIndex);
-    e.dataTransfer.effectAllowed = ALLOWED_DROP_EFFECT;
-    e.dataTransfer.setData(DRAG_DROP_CONTENT_TYPE, JSON.stringify(this.getSelectedItems()));
-    this.setState({ selected: this.state.selected });
-  },
-  onDragEnd: function(e) {
-    if(e.dataTransfer.dropEffect === ALLOWED_DROP_EFFECT) {
-      this.removeSelectedItems();
-      this.state.selected.clear();
-      this.setState({
-        items:    this.state.items,
-        selected: this.state.selected,
-        hoverOver: NO_HOVER
-      });
-      return;
-    }
-    if(this.state.hoverOver !== NO_HOVER || this.state.selected.size !== 0) {
-      this.state.selected.clear();
-      this.setState({ hoverOver: NO_HOVER, selected: this.state.selected });
-    }
-  },
-  correctSelectedAfterDrop: function(droppedItems) {
-    if(this.state.hoverOver !== NO_HOVER) {
+  correctSelectedIndicesAfterAddingItems: function(droppedItems) {
+    if(this.state.activeDropZone !== NONE_ACTIVE) {
       // need to bump selected pointers to point account for data added by onDrop
-      var bumpSet = []
+      var selected = this.state.selected.asMutable()
+        , bumpSet = selected.filter(function(itemId) { return itemId >= this.state.activeDropZone; }, this)
         , bumpBy  = droppedItems.length;
-      this.state.selected.forEach(function(itemId) { if(itemId >= this.state.hoverOver) { bumpSet.push(itemId); } }, this);
-      bumpSet.forEach(function(itemId) { this.state.selected.delete(itemId); }, this);
-      bumpSet.forEach(function(itemId) { this.state.selected.add(itemId + bumpBy); }, this);
+      bumpSet.forEach(function(itemId) { selected.delete(itemId); }, this);
+      bumpSet.forEach(function(itemId) { selected.add(itemId + bumpBy); }, this);
+      return selected.asImmutable();
     }
   },
-  onDrop: function(e) {
-    var data = JSON.parse(e.dataTransfer.getData(DRAG_DROP_CONTENT_TYPE));
-    if(this.state.hoverOver !== NO_HOVER) {
-      Array.prototype.splice.apply(this.state.items, [this.state.hoverOver, 0].concat(data));
-      this.correctSelectedAfterDrop(data);
-      this.setState({
-        items: this.state.items,
-        selected: this.state.selected,
-        hoverOver: NO_HOVER
-      });
-    }
+  onClickOnItem: function(itemId) {
+    this.setState({ selected: this.toggleSelectedItem(itemId) });
   },
-  onDragOverItem: function(e) {
-    if(!this.containerAcceptsDropData(e.dataTransfer.types)) { return; } 
-    e.preventDefault();
-    var over = parseInt(e.currentTarget.getAttribute('data-key'));
-    if(e.clientY - e.currentTarget.offsetTop > e.currentTarget.offsetHeight / 2) { over++; }
-    if(over !== this.state.hoverOver) { this.setState({ hoverOver: over }); }
+  onDragStart: function(itemId) {
+    this.setState({ selected: this.state.selected.add(itemId) });
   },
-  onDragOverDropZone: function(e) {
-    if(!this.containerAcceptsDropData(e.dataTransfer.types)) { return; }
-    e.preventDefault();
-    var dropZoneId = parseInt(e.currentTarget.getAttribute('data-key'));
-    if(dropZoneId !== this.state.hoverOver) { this.setState({ hoverOver: dropZoneId }); }
+  onDropZoneActivate: function(dropZoneId) {
+    this.setState({ activeDropZone: dropZoneId });
   },
-  onDragLeaveContainer: function(e) {
-    var x = e.clientX
-      , y = e.clientY
-      , top    = e.currentTarget.offsetTop
-      , bottom = top + e.currentTarget.offsetHeight
-      , left   = e.currentTarget.offsetLeft
-      , right  = left + e.currentTarget.offsetWidth;
-    if(y <= top || y >= bottom || x <= left || x >= right) { this.resetHover(); }
+  onItemsAdded: function(items) {
+    this.setState({
+      items: this.state.items.splice.apply(this.state.items, [this.state.activeDropZone, 0].concat(items)),
+      selected: this.correctSelectedIndicesAfterAddingItems(items),
+      activeDropZone: NONE_ACTIVE
+    });
   },
-  resetHover: function(e) {
-    if(this.state.hoverOver !== NO_HOVER) { this.setState({ hoverOver: NO_HOVER }); }
-  },
-  renderDropZone: function(index) {
-    var classes = this.state.hoverOver === index ? 'container-dropZone-active' : '';
-    return <li key={"dropzone-" + index}
-               data-key={index}
-               className={classes}
-               style={merge(styles.dropZone, this.state.hoverOver === index && styles.activeDropZone)}
-               onDragOver={this.onDragOverDropZone}></li>;
-  },
-  renderListElements: function() {
-    var items = [];
-    for(var i=0, length=this.state.items.length;i<length;i++) {
-      items.push(this.renderDropZone(i));
-      // TODO - see if there is a performance hit when recreating these elements
-      //        if there is, create a cache of elements in the state when the items are updated
-      items.push(this.renderListElement(React.createElement(this.props.itemTemplate, { item: this.state.items[i] }), i));
-    }
-    items.push(this.renderDropZone(i));
-    return items;
-  },
-  renderListElement: function(item, key) {
-    var classes = this.state.selected.has(key) ? 'container-selected' : '';
-    return(
-      <li key={key}
-          data-key={key}
-          className={classes}
-          style={merge(styles.item, this.state.selected.has(key) && styles.selectedItem )}
-          onClick={this.onClickOnListItem}
-          draggable  ={true}
-          onDragOver ={this.onDragOverItem}
-          onDragStart={this.onDragStart}>{item}</li>
-    );
+  onRemoveSelected: function() {
+    this.setState({ 
+      items: this.state.items.filterNot(function(item, index) { return this.state.selected.has(index); }, this),
+      selected: this.state.selected.clear()
+    });
   },
   render: function() {
-    var items = this.renderListElements();
     return (
-      <ul ref="container"
-          onDrop={this.onDrop}
-          onDragLeave={this.onDragLeaveContainer}
-          onDragEnd  ={this.onDragEnd}
-          style={styles.container}>{items}</ul>
+      <DraggableListView
+        containerDropType={"custom_container_type"}
+        itemTemplate={this.props.itemTemplate}
+        items={this.state.items.toArray()}
+        selected={this.state.selected.toArray()}
+        activeDropZone={this.state.activeDropZone}
+        onClickOnItem={this.onClickOnItem}
+        onDragStart={this.onDragStart}
+        onDropZoneActivate={this.onDropZoneActivate}
+        onItemsAdded={this.onItemsAdded}
+        onRemoveSelected={this.onRemoveSelected} />
     );
   }
 });

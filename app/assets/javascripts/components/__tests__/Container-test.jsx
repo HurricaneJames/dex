@@ -1,7 +1,11 @@
+// This is more of an integration test in that DraggableListContainerView is really
+// useless without the DraggableListView controller.
 jest.dontMock('../Container');
+jest.dontMock('../DraggableListView');
 
 var randomWords = ["apple", "bannana", "watermelon", "oranges", "ice cream"]
   , CONTAINER_TYPE = 'custom_container_type'
+  , CONTAINER_SELECTED_ITEM    = 'container-selected'
   , CONTAINER_DROP_ZONE_ACTIVE = 'container-dropZone-active';
 
 describe('Container', function() {
@@ -42,7 +46,7 @@ describe('Container', function() {
     it('highlights item as selected when clicked', function() {
       expect(item.props.className).toBe('');
       TestUtils.Simulate.click(item);
-      expect(item.props.className).toBe('container-selected');
+      expect(item.props.className).toBe(CONTAINER_SELECTED_ITEM);
     });
 
     it('does not highlight items when they are un-selected', function() {
@@ -72,13 +76,13 @@ describe('Container', function() {
     it('highlights item as selected when dragged', function() {
       expect(item.props.className).toBe('');
       TestUtils.Simulate.dragStart(item, { dataTransfer: mockDataTransfer });
-      expect(item.props.className).toBe('container-selected');
+      expect(item.props.className).toBe(CONTAINER_SELECTED_ITEM);
     });
     it('shoudl keep previously selected items as selected when dragged', function() {
       TestUtils.Simulate.click(item);
-      expect(item.props.className).toBe('container-selected');
+      expect(item.props.className).toBe(CONTAINER_SELECTED_ITEM);
       TestUtils.Simulate.dragStart(item, { dataTransfer: mockDataTransfer });
-      expect(item.props.className).toBe('container-selected');
+      expect(item.props.className).toBe(CONTAINER_SELECTED_ITEM);
     });
     it('should set the data transfer with the correct type and the items to being dragged', function() {
       TestUtils.Simulate.dragStart(item, { dataTransfer: mockDataTransfer });
@@ -167,13 +171,13 @@ describe('Container', function() {
       mockEvent = { dataTransfer: { types: [CONTAINER_TYPE] } }
     });
     it('adds dropped items to currently selected drop zone', function() {
-        var randomDropWords = '["peaches", "cream"]';
-        mockEvent.dataTransfer.getData = function() { return randomDropWords; };
+      var randomDropWords = '["peaches", "cream"]';
+      mockEvent.dataTransfer.getData = function() { return randomDropWords; };
 
-        TestUtils.Simulate.dragOver(overItem, mockEvent);
-        TestUtils.Simulate.drop(overItem, mockEvent);
-        var items = TestUtils.scryRenderedDOMComponentsWithClass(container, 'customFinder').map(function(item) { return item.getDOMNode().textContent; });
-        expect(items).toEqual(randomWords.concat(["peaches", "cream"]));
+      TestUtils.Simulate.dragOver(overItem, mockEvent);
+      TestUtils.Simulate.drop(overItem, mockEvent);
+      var items = TestUtils.scryRenderedDOMComponentsWithClass(container, 'customFinder').map(function(item) { return item.getDOMNode().textContent; });
+      expect(items).toEqual(randomWords.concat(["peaches", "cream"]));
     });
     it('removes selected items', function() {
       var item = getItemFromContainer(container, 0);
@@ -188,5 +192,20 @@ describe('Container', function() {
       // array where first item is now last
       expect(items).toEqual(randomWords.slice(1).concat(randomWords[0]));
     });
+
+    it("should hide the active drop zone after dropping", function() {
+      var item = getItemFromContainer(container, 0);
+      mockEvent.dataTransfer.dropEffect = "move";
+      mockEvent.dataTransfer.setData = function() {};
+      mockEvent.dataTransfer.getData = function() { return "[\"" + randomWords[0] + "\"]"; };
+      TestUtils.Simulate.dragStart(item, mockEvent);
+      TestUtils.Simulate.dragOver(overItem, mockEvent);
+      TestUtils.Simulate.drop(overItem, mockEvent);
+      TestUtils.Simulate.dragEnd(item, mockEvent);
+
+      var activeDropZones = TestUtils.scryRenderedDOMComponentsWithClass(container, CONTAINER_SELECTED_ITEM);
+      expect(activeDropZones.length).toBe(0);
+    });
   });
+
 })
