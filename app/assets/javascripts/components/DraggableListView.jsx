@@ -47,8 +47,8 @@ var TextTemplate = React.createClass({ displayName: "DraggableListView-TextTempl
 var DraggableListView = React.createClass({
   displayName: "DraggableListView",
   propTypes: {
-    containerDropType:  React.PropTypes.string,
-    itemTemplate:       React.PropTypes.func,
+    containerDropType:  React.PropTypes.string.isRequired,
+    itemTemplate:       React.PropTypes.func.isRequired,
     items:              React.PropTypes.array,
     selected:           React.PropTypes.arrayOf(React.PropTypes.number),
     activeDropZone:     React.PropTypes.number,    // the currently active drop zone (default: -1)

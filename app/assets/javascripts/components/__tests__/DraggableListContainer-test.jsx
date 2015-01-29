@@ -85,7 +85,7 @@ describe('DraggableListView', function() {
       TestUtils.Simulate.dragStart(item2, { dataTransfer: mockDataTransfer });
       expect(mockDataTransfer.setData).toBeCalledWith(CONTAINER_TYPE, '["apple","bannana"]');
     });
-    it.only("should not deselect items when dragged if they are already selected", function() {
+    it("should not deselect items when dragged if they are already selected", function() {
       container = TestUtils.renderIntoDocument(<Container itemTemplate={CustomTemplate} items={randomWords} selected={[0]} onDragStart={mockOnDragStart} />)
       var dragItem = getItemFromContainer(container, 0);
       TestUtils.Simulate.dragStart(dragItem, { dataTransfer: mockDataTransfer });

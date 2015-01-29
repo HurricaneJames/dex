@@ -10,7 +10,44 @@ var DRAG_DROP_CONTENT_TYPE = "custom_container_type"
   , ALLOWED_DROP_EFFECT = "move"
   , NONE_ACTIVE = -1;
 
-var Container = React.createClass({ displayName: "Container",
+var toggleSelectedItem = function(selectedIndex) {
+      return this.state.selected.has(selectedIndex) ? this.state.selected.delete(selectedIndex) : this.state.selected.add(selectedIndex);
+    }
+  , correctSelectedIndicesAfterAddingItems = function(droppedItems) {
+      if(this.state.activeDropZone !== NONE_ACTIVE) {
+        // need to bump selected pointers to point account for data added by onDrop
+        var selected = this.state.selected.asMutable()
+          , bumpSet = selected.filter(function(itemId) { return itemId >= this.state.activeDropZone; }, this)
+          , bumpBy  = droppedItems.length;
+        bumpSet.forEach(function(itemId) { selected.delete(itemId); }, this);
+        bumpSet.forEach(function(itemId) { selected.add(itemId + bumpBy); }, this);
+        return selected.asImmutable();
+      }
+    }
+  , onClickOnItem = function(itemId) {
+      this.setState({ selected: toggleSelectedItem.call(this, itemId) });
+    }
+  , onDragStart = function(itemId) {
+      this.setState({ selected: this.state.selected.add(itemId) });
+    }
+  , onDropZoneActivate = function(dropZoneId) {
+      this.setState({ activeDropZone: dropZoneId });
+    }
+  , onItemsAdded = function(items) {
+      this.setState({
+        items: this.state.items.splice.apply(this.state.items, [this.state.activeDropZone, 0].concat(items)),
+        selected: correctSelectedIndicesAfterAddingItems.call(this, items),
+        activeDropZone: NONE_ACTIVE
+      });
+    }
+  , onRemoveSelected = function() {
+      this.setState({ 
+        items: this.state.items.filterNot(function(item, index) { return this.state.selected.has(index); }, this),
+        selected: this.state.selected.clear()
+      });
+    };
+
+var ContainerMixin = {
   mixins: [ImmutableRenderMixin],
   propTypes: {
     items: React.PropTypes.array,
@@ -26,43 +63,7 @@ var Container = React.createClass({ displayName: "Container",
       activeDropZone: NONE_ACTIVE
     };
   },
-  toggleSelectedItem: function(selectedIndex) {
-    return this.state.selected.has(selectedIndex) ? this.state.selected.delete(selectedIndex) : this.state.selected.add(selectedIndex);
-  },
-  correctSelectedIndicesAfterAddingItems: function(droppedItems) {
-    if(this.state.activeDropZone !== NONE_ACTIVE) {
-      // need to bump selected pointers to point account for data added by onDrop
-      var selected = this.state.selected.asMutable()
-        , bumpSet = selected.filter(function(itemId) { return itemId >= this.state.activeDropZone; }, this)
-        , bumpBy  = droppedItems.length;
-      bumpSet.forEach(function(itemId) { selected.delete(itemId); }, this);
-      bumpSet.forEach(function(itemId) { selected.add(itemId + bumpBy); }, this);
-      return selected.asImmutable();
-    }
-  },
-  onClickOnItem: function(itemId) {
-    this.setState({ selected: this.toggleSelectedItem(itemId) });
-  },
-  onDragStart: function(itemId) {
-    this.setState({ selected: this.state.selected.add(itemId) });
-  },
-  onDropZoneActivate: function(dropZoneId) {
-    this.setState({ activeDropZone: dropZoneId });
-  },
-  onItemsAdded: function(items) {
-    this.setState({
-      items: this.state.items.splice.apply(this.state.items, [this.state.activeDropZone, 0].concat(items)),
-      selected: this.correctSelectedIndicesAfterAddingItems(items),
-      activeDropZone: NONE_ACTIVE
-    });
-  },
-  onRemoveSelected: function() {
-    this.setState({ 
-      items: this.state.items.filterNot(function(item, index) { return this.state.selected.has(index); }, this),
-      selected: this.state.selected.clear()
-    });
-  },
-  render: function() {
+  renderContainer: function() {
     return (
       <DraggableListView
         containerDropType={"custom_container_type"}
@@ -70,13 +71,13 @@ var Container = React.createClass({ displayName: "Container",
         items={this.state.items.toArray()}
         selected={this.state.selected.toArray()}
         activeDropZone={this.state.activeDropZone}
-        onClickOnItem={this.onClickOnItem}
-        onDragStart={this.onDragStart}
-        onDropZoneActivate={this.onDropZoneActivate}
-        onItemsAdded={this.onItemsAdded}
-        onRemoveSelected={this.onRemoveSelected} />
+        onClickOnItem={onClickOnItem.bind(this)}
+        onDragStart={onDragStart.bind(this)}
+        onDropZoneActivate={onDropZoneActivate.bind(this)}
+        onItemsAdded={onItemsAdded.bind(this)}
+        onRemoveSelected={onRemoveSelected.bind(this)} />
     );
   }
-});
+};
 
-module.exports = Container;
+module.exports = ContainerMixin;

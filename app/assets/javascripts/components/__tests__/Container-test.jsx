@@ -1,6 +1,10 @@
-// This is more of an integration test in that DraggableListContainerView is really
-// useless without the DraggableListView controller.
+// Container is just a wrapper around the ContainerMixin. That means this file, and all
+// of its tests, are carbon copies of ContainerMixin-test.jsx. There has been much
+// debate on whether this is good or bad. It was determined that either way, this is the
+// way we were going to implement it.
+
 jest.dontMock('../Container');
+jest.dontMock('../ContainerMixin');
 jest.dontMock('../DraggableListView');
 
 var randomWords = ["apple", "bannana", "watermelon", "oranges", "ice cream"]
