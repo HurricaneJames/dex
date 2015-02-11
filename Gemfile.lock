@@ -38,7 +38,7 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
     arel (5.0.1.20140414130214)
-    browserify-rails (0.5.1)
+    browserify-rails (0.7.2)
       sprockets (~> 2.0)
     builder (3.2.2)
     coffee-rails (4.0.1)

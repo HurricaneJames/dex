@@ -2,12 +2,16 @@
   "name": "dex",
   "devDependencies": {
     "browserify": "~>6.3",
+    "browserify-incremental": "^1.4.0",
+    "immutable": "^3.6.2",
     "jest-cli": "^0.2.0",
+    "jquery": "^2.1.3",
     "react": "^0.12.0",
+    "react-immutable-render-mixin": "^0.8.0",
+    "react-intl": "^1.1.0",
     "react-tools": "^0.12.1",
     "reactify": "^0.17.1",
-    "immutable": "^3.6.2",
-    "react-immutable-render-mixin": "^0.8.0"
+    "reflux": "^0.2.5"
   },
   "license": "The MIT License (c) Tribune Publishing",
   "engines": {
@@ -24,7 +28,9 @@
       "jsx"
     ],
     "unmockedModulePathPatterns": [
-      "react", "immutable", "support/"
+      "react",
+      "immutable",
+      "support/"
     ],
     "testFileExtensions": [
       "js",
