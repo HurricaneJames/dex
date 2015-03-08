@@ -340,7 +340,7 @@ Conclusion
 ----------
 This article should have provided a decent description of testing a complex React component with Jest. We covered basic Jasmine syntax (`describe`, `it`, `it.only`, `expect`, `toBe`, `toEqual`, `toBeCalled`, `not`, `beforeEach`). We covered how to actually run the tests `npm test`. We saw quite a few of the React test utilities (`Simulate.[click, dragStart, dragOver, dragLeave, drop, dragEnd]`, `scryRenderedDOMComponentsWithClass`, `scryRenderedDOMComponentsWithTag`, `findRenderedDOMComponentWithTag`). We covered mocking the event data object, and some of the pain that it causes. And we gave lots of working test code as examples in the process.
 
-This article also provides a decent starting point for the next article, [Adding Multi-Select to the React Drag and Drop Container with TDD](https://reactjsnews.com). In fact, that article was originally part of this article. As the length of this article grew, it was clear it needed to be broken up a bit. On the bright side, that means there is already a draft, so it should be up in the next couple days.
+This article also provides a decent starting point for the next article, [Adding Multi-Select to the React Drag and Drop Container with TDD](https://reactjsnews.com/using-tdd-with-reactjs/). In fact, that article was originally part of this article. As the length of this article grew, it was clear it needed to be broken up a bit. On the bright side, that means there is already a draft, so it should be up in the next couple days.
 
 Changes
 -------
