@@ -7,3 +7,6 @@ React = require('react');
 // put components here
 DemoComponent = require('./components/DemoComponent');
 Container = require('./components/Container');
+PlayBox = require('./components/PlayBox');
+InteractiveExample = require('./components/InteractiveExample');
+BlueBird = require('./components/BlueBird')

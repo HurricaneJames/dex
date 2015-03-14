@@ -1,0 +1,20 @@
+<h1>DEX - Chicago Breaking News</h1>
+
+<%
+  # NEVER PUT LOGIC LIKE THIS IN A VIEW
+  random_words = [
+    ["apple", "bannana", "watermelon", "oranges", "ice cream"],
+    [],
+    ["alpha", "beta", "gamma", "iota"],
+    ["hot dog", "mustard", "guava"],
+    ["chocolate", "ice cream", "cookies", "brownies"],
+    ["dog", "cat", "iguana", "leopard", "bear"]
+  ]
+%>
+
+<% random_words.each_with_index do |random_word_group, index| %>
+  
+  <h2>Container <%= index + 1 %></h2>
+  <%= react_component 'Container', { items: random_word_group } %>
+
+<% end %>

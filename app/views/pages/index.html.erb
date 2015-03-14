@@ -1,18 +1,11 @@
-<h1>DEX - A Rails/React Drag and Drop Example</h1>
-<%
-  # NEVER PUT LOGIC LIKE THIS IN A VIEW
-  random_words = [
-    ["apple", "bannana", "watermelon", "oranges", "ice cream"],
-    [],
-    ["alpha", "beta", "gamma", "iota"],
-    ["hot dog", "mustard", "guava"],
-    ["chocolate", "ice cream", "cookies", "brownies"],
-    ["dog", "cat", "iguana", "leopard", "bear"]
-  ]
-%>
-<% random_words.each_with_index do |random_word_group, index| %>
-  
-  <h2>Container <%= index + 1 %></h2>
-  <%= react_component 'Container', { items: random_word_group } %>
+<h1>Dex Demos</h1>
+<ul>
+  <li><a href="/pages/dex">Drag and Drop</a></li>
+  <li><a href="/pages/demo1">Demo 1</a></li>
+  <li><a href="/pages/breaking">Breaking News</a></li>
+  <li><a href="/pages/playbox">Play Box</a></li>
+  <li><a href="/pages/bluebird">BlueBird</a></li>
+</ul>
 
-<% end %>
+<h2>Daily Demo - Blue Bird</h2>
+<%= react_component 'BlueBird' %>
