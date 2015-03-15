@@ -1,0 +1,9 @@
+<h1><%= @article.headline %>:</h1>
+<h2><%= @article.subheadline %></h2>
+
+<%= render partial: 'main_image', locals: { image: @article.images.first } %>
+
+<h3>By: <%= @article.contributors %></h3>
+<h3>Date: <%= @article.date %></h3>
+
+<p><%= parse_body @article.body, @article.images %></p>

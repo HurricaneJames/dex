@@ -1,0 +1,33 @@
+<h1>Image</h1>
+<%= form_for @image do |f| %>
+  <%= f.hidden_field :id %>
+
+  <% if f.object.link %>
+    <%= image_tag f.object.link, width: '400' %>
+    <br />
+    <%= f.label :link, "Upload New Image" %>
+    <%= f.file_field :link %>
+  <% else %>
+    <%= f.label :link, "Upload Image" %>
+    <%= f.file_field :link %>
+  <% end %>
+  <br />
+
+  <%= f.label :slug %>
+  <%= f.text_field :slug %>
+  <br />
+
+  <%= f.label :caption %>
+  <%= f.text_area :caption %>
+  <br />
+
+  <%= f.label :copyright %>
+  <%= f.text_area :copyright %>
+  <br />
+
+  <%= f.label :owner %>
+  <%= f.text_field :owner %>
+  <br />
+
+  <%= f.submit f.object.new_record? ? "Create" : "Update" %>
+<% end %>

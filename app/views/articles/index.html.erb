@@ -1,0 +1,10 @@
+<h1>Articles</h1>
+<ul>
+  <% @articles.each do |article| %>
+    <li>
+      <%= link_to article.slug, article_path(article) %>
+      <%= link_to "E", edit_article_path(article) %>
+      <%= link_to "X", article_path(article), method: :delete, data: { confirm: "Sure?" } %>
+    </li>
+  <% end %>
+</ul>

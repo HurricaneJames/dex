@@ -16,3 +16,5 @@ gem 'jbuilder', '~> 2.0'
 
 gem 'spring',        group: :development
 gem 'thin'
+
+gem 'carrierwave', '~> 0.10.0'

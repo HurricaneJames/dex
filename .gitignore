@@ -17,3 +17,6 @@
 
 # Ignore NPM packages
 /node_modules
+
+# Ignore uploads
+/public/uploads/

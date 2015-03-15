@@ -1,0 +1,11 @@
+<h1>Images</h1>
+<ul>
+  <% @images.each do |image| %>
+    <li>
+      <%= image_tag image.link, width: "64" %>
+      <%= image.slug %>
+      <%= link_to 'E', edit_image_path(image) %>
+      <%= link_to "X", image_path(image), method: :delete, data: { confirm: "Sure?" } %>
+    </li>
+  <% end %>
+</ul>

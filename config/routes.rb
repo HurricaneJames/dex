@@ -7,4 +7,7 @@ Rails.application.routes.draw do
   get 'pages/demo1'
   get 'pages/bluebird'
   root to: 'pages#index'
+
+  resources :articles
+  resources :images
 end
