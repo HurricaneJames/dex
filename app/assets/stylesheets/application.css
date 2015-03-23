@@ -13,3 +13,9 @@
  *= require_tree .
  *= require_self
  */
+
+textarea {
+  /* wtf chrome: without this, if an input element is touching the upper boundry of a textarea, the
+                 textarea will not update when typing, highlighting, anything...?!?!? */
+  margin-top: 1px; 
+}

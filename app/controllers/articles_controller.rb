@@ -60,7 +60,15 @@ class ArticlesController < ApplicationController
 
   def article_params
     params.require(:article).permit(:slug, :headline, :subheadline, :contributors, :date, :body, :state,
-      article_image_associations_attributes: [ :id, :position, :_destroy ],
+      article_image_associations_attributes: [
+        :id,
+        :position,
+        :_destroy,
+        image_attributes: [
+          :link,
+          :slug
+        ]
+      ],
       images_attributes: [:id, :link, :slug] )
   end
 end

@@ -9,4 +9,8 @@ DemoComponent = require('./components/DemoComponent');
 Container = require('./components/Container');
 PlayBox = require('./components/PlayBox');
 InteractiveExample = require('./components/InteractiveExample');
-BlueBird = require('./components/BlueBird')
+BlueBird = require('./components/BlueBird');
+
+// Complex forms components
+ArticleShow = require('./components/ArticleShow');
+ArticleEdit = require('./components/ArticleEdit');
