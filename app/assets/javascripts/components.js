@@ -11,6 +11,7 @@ PlayBox = require('./components/PlayBox');
 InteractiveExample = require('./components/InteractiveExample');
 Demo2 = require('./components/Demo2');
 BlueBird = require('./components/BlueBird');
+BlueBirdStats = require('./components/BlueBirdStats');
 
 // Complex forms components
 ArticleShow = require('./components/ArticleShow');

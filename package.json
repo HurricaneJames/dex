@@ -18,7 +18,8 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "node ./node_modules/jest-cli/bin/jest.js"
+    "test": "node ./node_modules/jest-cli/bin/jest.js",
+    "fayeserver": "node fayeserver.js"
   },
   "jest": {
     "rootDir": "./app/assets/javascripts/components",
@@ -39,5 +40,9 @@
     "testPathIgnorePatterns": [
       "preprocessor.js"
     ]
+  },
+  "dependencies": {
+    "faye": "^1.1.1",
+    "http": "0.0.0"
   }
 }
