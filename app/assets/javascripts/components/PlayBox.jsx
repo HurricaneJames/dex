@@ -9,7 +9,7 @@ var styles = {
     height: '45vh',
     objectFit: 'cover'
   }
-}
+};
 
 var PlayBox = React.createClass({
   getInitialState: function() { return { gifs: [] }; },
