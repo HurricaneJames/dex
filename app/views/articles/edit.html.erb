@@ -1,1 +1,1 @@
-<%= react_component 'ArticleEdit', @article.to_json(root: false, include: [:images, article_image_associations: { root: false, include: [:image] }]) %>
+<%= react_component 'ArticleEdit', @article.to_json(root: false, include: [article_image_associations: { root: false, include: [:image] }]) %>

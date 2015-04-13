@@ -15,6 +15,7 @@ class PagesController < ApplicationController
   end
 
   def demo1
+    @disable_foundation = true
   end
 
   def bluebird

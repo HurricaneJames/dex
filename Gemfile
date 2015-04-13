@@ -18,3 +18,6 @@ gem 'spring',        group: :development
 gem 'thin'
 
 gem 'carrierwave', '~> 0.10.0'
+
+gem 'foundation-rails', '~>5.4.1'
+gem 'foundation-icons-sass-rails', '~>3'
