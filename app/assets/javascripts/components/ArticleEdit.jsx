@@ -1,5 +1,66 @@
 var React = require('react')
-  , RailsFormRequirements = require('./RailsFormRequirements');
+  , RailsFormRequirements = require('./RailsFormRequirements')
+  , ArticleShow = require('./ArticleShow');
+
+var NewImage = React.createClass({
+  displayName: "NewImage",
+  propTypes: {
+    name: React.PropTypes.string,
+    position: React.PropTypes.number,
+    image: React.PropTypes.shape({
+      link: React.PropTypes.string,
+      slug: React.PropTypes.string
+    }),
+    onImageLinked: React.PropTypes.func,
+    onImageSlugChange: React.PropTypes.func,
+    onPositionChange: React.PropTypes.func
+  },
+  render: function() {
+    return (
+      <div>Upload
+        <div><label>Image<input type="file" name={this.props.name + '[image_attributes][link]'} value={this.props.image.link} onChange={this.props.onImageLinked} /></label></div>
+        <div><label>Slug<input type='text' name={this.props.name + '[image_attributes][slug]'} value={this.props.image.slug} onChange={this.props.onImageSlugChange} /></label></div>
+        <div><label>Position<input type="text" name={this.props.name + '[position]'} value={this.props.position} onChange={this.props.onPositionChange} /></label></div>
+      </div>
+    );
+  }
+});
+
+var ArticleImage = React.createClass({
+  displayName: "ArticleImage",
+  propTypes: {
+    name: React.PropTypes.string,
+    id: React.PropTypes.number,
+    position: React.PropTypes.number,
+    image: React.PropTypes.shape({
+      id: React.PropTypes.number,
+      link: React.PropTypes.shape({
+        url: React.PropTypes.string.isRequired
+      })
+    }).isRequired,
+    destroy: React.PropTypes.bool,
+    onPositionChange: React.PropTypes.func,
+    onToggleDestroy: React.PropTypes.func
+  },
+  render: function() {
+    return (
+      <div>
+        <input type='hidden' name={this.props.name + '[id]'} value={this.props.id} readOnly />
+        <input type='hidden' name={this.props.name + '[image_id]'} value={this.props.image.id} readOnly />
+        <img src={this.props.image.link.url} width={64} />
+        <label>
+          Position
+          <input type='text' name={this.props.name + '[position]'} value={this.props.position} onChange={this.props.onPositionChange} />
+        </label>
+        <span>
+          <input type="hidden" name={this.props.name + '[_destroy]'} value="0" readOnly />
+          <input type="checkbox" name={this.props.name + '[_destroy]'} value="1" onChange={this.props.onToggleDestroy} />
+          Remove
+        </span>
+      </div>
+    );
+  }
+});
 
 var ArticleImageListItem = React.createClass({
   displayName: "ArticleImageListItem",
@@ -9,13 +70,8 @@ var ArticleImageListItem = React.createClass({
     position: React.PropTypes.number,
     image: React.PropTypes.shape({
       id: React.PropTypes.number,
-      link: React.PropTypes.oneOfType([
-        React.PropTypes.shape({
-          url: React.PropTypes.string.isRequired
-        }),
-        React.PropTypes.string
-      ])
-    }),
+      link: React.PropTypes.object
+    }).isRequired,
     destroy: React.PropTypes.bool,
     onPositionChange: React.PropTypes.func,
     onToggleDestroy: React.PropTypes.func,
@@ -25,32 +81,25 @@ var ArticleImageListItem = React.createClass({
   render: function() {
     if(!this.props.image.link || typeof(this.props.image.link) === 'string') {
       return (
-        <div>Upload
-          <div><label>Image<input type="file" name={this.props.name + '[image_attributes][link]'} value={this.props.image.link} onChange={this.props.onImageLinked} /></label></div>
-          <div><label>Slug<input type='text' name={this.props.name + '[image_attributes][slug]'} value={this.props.image.slug} onChange={this.props.onImageSlugChange} /></label></div>
-          <div><label>Position<input type="text" name={this.props.name + '[position]'} value={this.props.position} onChange={this.props.onPositionChange} /></label></div>
-        </div>
+        <NewImage
+          name={this.props.name}
+          position={this.props.position}
+          image={this.props.image}
+          onImageLinked={this.props.onImageLinked}
+          onImageSlugChange={this.props.onImageSlugChange}
+          onPositionChange={this.props.onPositionChange}
+        />
       );
     }
     return(
-      <div>
-        <input type='hidden' name={this.props.name + '[id]'} value={this.props.id} readOnly />
-        <input type='hidden' name={this.props.name + '[image_id]'} value={this.props.image.id} readOnly />
-        <img src={this.props.image.link.url} width={64} />
-        <label>
-          Position
-          <input
-            type='text'
-            name={this.props.name + '[position]'}
-            value={this.props.position}
-            onChange={this.props.onPositionChange} />
-          </label>
-        <span>
-          <input type="hidden" name={this.props.name + '[_destroy]'} value="0" readOnly />
-          <input type="checkbox" name={this.props.name + '[_destroy]'} value="1" onChange={this.props.onToggleDestroy} />
-          Remove
-        </span>
-      </div>
+      <ArticleImage
+        id={this.props.id}
+        name={this.props.name}
+        position={this.props.position}
+        image={this.props.image}
+        onPositionChange={this.props.onPositionChange}
+        onToggleDestroy={this.props.onToggleDestroy}
+      />
     );
   }
 });
@@ -64,9 +113,7 @@ var ArticleImageList = React.createClass({
       position: React.PropTypes.number,
       image: React.PropTypes.shape({
         id: React.PropTypes.number,
-        link: React.PropTypes.shape({
-          url: React.PropTypes.string.isRequired
-        })
+        link: React.PropTypes.object
       }),
       destroy: React.PropTypes.bool
     })),
@@ -78,9 +125,6 @@ var ArticleImageList = React.createClass({
     onImageLinked: React.PropTypes.func,
     onImageSlugChange: React.PropTypes.func,
     onExtraSlugChange: React.PropTypes.func
-  },
-  getInitialState: function() {
-    return { showAddBySlug: false };
   },
   render: function() {
     var images = this.props.articleImageAssociations.map(function(association, index) {
@@ -125,17 +169,7 @@ var ArticleForm = React.createClass({
     date: React.PropTypes.string,
     body: React.PropTypes.string,
     state: React.PropTypes.string,
-    articleImageAssociations: React.PropTypes.arrayOf(React.PropTypes.shape({
-      id: React.PropTypes.number,
-      position: React.PropTypes.number,
-      image: React.PropTypes.shape({
-        id: React.PropTypes.number,
-        link: React.PropTypes.shape({
-          url: React.PropTypes.string.isRequired
-        })
-      }),
-      destroy: React.PropTypes.bool
-    })),
+    articleImageAssociations: React.PropTypes.array,
     extraSlugs: React.PropTypes.arrayOf(React.PropTypes.string),
     stateOptions: React.PropTypes.array,
     onSlugChange: React.PropTypes.func,
@@ -182,7 +216,7 @@ var ArticleForm = React.createClass({
         <div><label>Subheadline<input type='text' name={this.props.name + '[subheadline]'} value={this.props.subheadline} onChange={this.props.onSubheadlineChange} /></label></div>
         <div><label>Contributors<textarea name={this.props.name + '[contributors]' } value={this.props.contributors} onChange={this.props.onContributorsChange} /></label></div>
         <div><label>Date<input type='text' name={this.props.name + '[date]'} value={this.props.date} onChange={this.props.onDateChange} /></label></div>
-        <div><label>Body<textarea name={this.props.name + '[body]'} value={this.props.body} onChange={this.props.onBodyChange} /></label></div>
+        <div><label>Body<textarea name={this.props.name + '[body]'} value={this.props.body} onChange={this.props.onBodyChange} rows={25} /></label></div>
         <div><label>State<select name={this.props.name + '[state]'} value={this.props.state} onChange={this.props.onStateChange}>{this.props.stateOptions}</select></label></div>
         <ArticleImageList
           name={this.props.name + '[article_image_associations_attributes]'}
@@ -227,8 +261,6 @@ var ArticleEdit = React.createClass({
   },
   getInitialState: function() {
     return {
-      ta1: 'lskdj',
-      ta2: 'lskdjsd',
       id: this.props.id,
       slug: this.props.slug,
       headline: this.props.headline,
@@ -286,7 +318,6 @@ var ArticleEdit = React.createClass({
     this.setState({articleImageAssociations: articleImageAssociations});
   },
   onAddImageBySlug: function() {
-console.debug("onAddImage");
     var extraSlugs = this.state.extraSlugs;
     extraSlugs.push('');
     this.setState({extraSlugs: extraSlugs});
@@ -296,35 +327,59 @@ console.debug("onAddImage");
     extraSlugs[slugIndex] = e.target.value;
     this.setState({extraSlugs: extraSlugs});
   },
+  getImages: function() {
+    var associations = this.state.articleImageAssociations
+      , i, len=associations.length
+      , images=[];
+    for(i=0; i<len; i++) {
+      images.push(associations[i].image);
+    }
+    return images;
+  },
   render: function() {
     return (
-      <ArticleForm
-        name='article'
-        id={this.state.id}
-        slug={this.state.slug}
-        headline={this.state.headline}
-        subheadline={this.state.subheadline}
-        contributors={this.state.contributors}
-        date={this.state.date}
-        body={this.state.body}
-        state={this.state.state}
-        articleImageAssociations={this.state.articleImageAssociations}
-        extraSlugs={this.state.extraSlugs}
-        onSlugChange={this.onChange.bind(null, 'slug')}
-        onHeadlineChange={this.onChange.bind(null, 'headline')}
-        onSubheadlineChange={this.onChange.bind(null, 'subheadline')}
-        onContributorsChange={this.onChange.bind(null, 'contributors')}
-        onDateChange={this.onChange.bind(null, 'date')}
-        onBodyChange={this.onChange.bind(null, 'body')}
-        onStateChange={this.onChange.bind(null, 'state')}
-        onImagePositionChange={this.onImagePositionChange}
-        onImageDestroy={this.onImageDestroy}
-        onImageLinked={this.onImageLinked}
-        onAddByUploadClicked={this.onAddImageUpload}
-        onImageSlugChange={this.onImageSlugChange}
-        onAddBySlugClicked={this.onAddImageBySlug}
-        onExtraSlugChange={this.onExtraSlugChange}
-      />
+      <div>
+        <div style={{width: '30%', display: 'inline-block', verticalAlign: 'top', paddingRight: 10}}>
+          <ArticleForm
+            name='article'
+            id={this.state.id}
+            slug={this.state.slug}
+            headline={this.state.headline}
+            subheadline={this.state.subheadline}
+            contributors={this.state.contributors}
+            date={this.state.date}
+            body={this.state.body}
+            state={this.state.state}
+            articleImageAssociations={this.state.articleImageAssociations}
+            extraSlugs={this.state.extraSlugs}
+            onSlugChange={this.onChange.bind(null, 'slug')}
+            onHeadlineChange={this.onChange.bind(null, 'headline')}
+            onSubheadlineChange={this.onChange.bind(null, 'subheadline')}
+            onContributorsChange={this.onChange.bind(null, 'contributors')}
+            onDateChange={this.onChange.bind(null, 'date')}
+            onBodyChange={this.onChange.bind(null, 'body')}
+            onStateChange={this.onChange.bind(null, 'state')}
+            onImagePositionChange={this.onImagePositionChange}
+            onImageDestroy={this.onImageDestroy}
+            onImageLinked={this.onImageLinked}
+            onAddByUploadClicked={this.onAddImageUpload}
+            onImageSlugChange={this.onImageSlugChange}
+            onAddBySlugClicked={this.onAddImageBySlug}
+            onExtraSlugChange={this.onExtraSlugChange}
+          />
+        </div>
+        <div style={{width: '66%', display: 'inline-block', borderLeft: '1px solid black', paddingLeft: 10}}>
+          <ArticleShow
+            slug={this.props.slug}
+            headline={this.props.headline}
+            subheadline={this.props.contributors}
+            contributors={this.state.contributors}
+            date={this.props.date}
+            body={this.state.body}
+            images={this.getImages()}
+          />
+        </div>
+      </div>
     );
   }
 });
