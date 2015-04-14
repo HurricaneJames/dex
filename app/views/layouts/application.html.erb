@@ -3,12 +3,12 @@
 <head>
   <title>Dex Demos</title>
   <%= stylesheet_link_tag('application', media: 'all', 'data-turbolinks-track' => true ) unless @disable_foundation %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
 </head>
-<body>
+<body <%= yield :seed_attributes %>>
 
 <%= yield %>
 
+<%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
 </body>
 </html>

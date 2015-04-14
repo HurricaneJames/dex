@@ -1,4 +1,7 @@
+<% content_for :seed_attributes do %>
+data-bluebird-store="an initial message"
+<% end %>
 <h1>BlueBird</h1>
 <%= react_component "BlueBirdStats", {} %>
-<%= react_component "BlueBird", {} %>
-<%= react_component "BlueBird", { reverse: true } %>
+<%= react_component "BlueBirdContainer", {} %>
+<%= react_component "BlueBirdContainer", { reverse: true } %>

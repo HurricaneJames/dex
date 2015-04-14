@@ -1,17 +1,12 @@
 var React = require('react')
   , LazyInput = require('lazy-input');
 
-var BODY_STYLE = {
-  border: '1px solid black',
-  backgroundColor: '#ddd',
-  maxWidth: 400
-};
-
-var BlueBirdBody = React.createClass({
-  displayName: 'BlueBirdBody',
+var BlueBird = React.createClass({
+  displayName: 'BlueBird',
   propTypes: {
     content: React.PropTypes.string,
-    onChange: React.PropTypes.func
+    onChange: React.PropTypes.func,
+    style: React.PropTypes.object
   },
   onChange: function(e) {
     this.props.onChange(e.target.value);
@@ -20,9 +15,9 @@ var BlueBirdBody = React.createClass({
     return (
       <div>
         <span>Enter Some Text</span>
-        <LazyInput type="textarea" value={this.props.content} onChange={this.onChange} style={BODY_STYLE} rows={15} />
+        <LazyInput type="textarea" value={this.props.content} onChange={this.onChange} style={this.props.style} rows={15} />
       </div>
     );
   }
 });
-module.exports = BlueBirdBody;
+module.exports = BlueBird;

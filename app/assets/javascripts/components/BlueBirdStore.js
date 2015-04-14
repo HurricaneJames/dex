@@ -1,5 +1,5 @@
 var Reflux=require('reflux')
-  // , Faye = require('faye')
+  , Faye = require('faye')
   , BlueBirdActions = require('./BlueBirdActions');
 
 var input = ""
@@ -8,10 +8,13 @@ var input = ""
 var Store = Reflux.createStore({
   listenables: [BlueBirdActions],
   init: function() {
-    // client = new Faye.Client('http://localhost:8000/');
-    // sub    = client.subscribe('/messages', this.onMessage);
+    client = new Faye.Client('http://localhost:8000/');
+    sub    = client.subscribe('/messages', this.onMessage);
+    if(document.body) {
+      input = document.body.getAttribute('data-bluebird-store') || "";
+    }
   },
-  getInitialState: function() { return input; },
+  getInitialState: function() { console.debug("is: %o", input); return input; },
   onMessage: function(message) {
     if(input !== message.text) {
       input = message.text;
@@ -21,7 +24,7 @@ var Store = Reflux.createStore({
   onInputChange: function(newValue) {
     input = newValue;
     this.trigger(input);
-    client.publish('/messages', { text: newValue });
+    if(client) { client.publish('/messages', { text: newValue }); }
   }
 });
 

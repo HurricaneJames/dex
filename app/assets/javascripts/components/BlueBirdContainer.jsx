@@ -1,11 +1,17 @@
 var React = require('react')
   , Reflux = require('reflux')
-  , BlueBirdBody = require('./BlueBirdBody')
+  , BlueBird = require('./BlueBird')
   , BlueBirdActions = require('./BlueBirdActions')
   , BlueBirdStore = require('./BlueBirdStore');
 
-var BlueBird = React.createClass({
-  displayName: 'BlueBird',
+var BODY_STYLE = {
+  border: '1px solid black',
+  backgroundColor: '#ddd',
+  maxWidth: 400
+};
+
+var BlueBirdContainer = React.createClass({
+  displayName: 'BlueBirdContainer',
   mixins: [Reflux.connect(BlueBirdStore, 'bluebirdBody')],
   propTypes: {
     reverse: React.PropTypes.bool
@@ -24,10 +30,10 @@ var BlueBird = React.createClass({
   render: function() {
     return (
       <div>
-        <BlueBirdBody content={this.getContent()} onChange={this.onBodyChange} />
+        <BlueBird content={this.getContent()} onChange={this.onBodyChange} style={BODY_STYLE} />
       </div>
     );
   }
 });
 
-module.exports = BlueBird;
+module.exports = BlueBirdContainer;
