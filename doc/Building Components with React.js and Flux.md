@@ -1,9 +1,9 @@
-Building Interactive Components with React.js and Reflux
-========================================================
+Building Components with React.js and Reflux
+============================================
 
 React is a great view library. If used just right, it even makes an alright controller. However, sometimes you need something more. That is where Flux can be handy.
 
-Flux is the Facebook solution to keep the MVC paradigm from becoming unmanagable. If you are wondering whether Flux is right for your project, Dan Abramov made ["The Case for Flux"](https://medium.com/@dan_abramov/the-case-for-flux-379b7d1982c6) a few weeks ago. I cannot recommend his article enough. To summarize, Dan points out that Flux is great if:
+Flux is the Facebook solution to keep the MVC paradigm from becoming unmanageable. If you are wondering whether Flux is right for your project, Dan Abramov made ["The Case for Flux"](https://medium.com/@dan_abramov/the-case-for-flux-379b7d1982c6) a few weeks ago. I cannot recommend his article enough. To summarize, Dan points out that Flux is great if:
 
 * "your data changes over time" and you "care about immediately reflecting those changes in the UI"
 * "you want to cache data in memory, but it can change while cached"
@@ -18,9 +18,9 @@ The Assignment
 
 We are going to write a very simple edit tool. Our component will have two parts. First, a label telling users to "Enter Some Text." Second, a block where a user can enter some text. That is pretty simple.
 
-However, we are going to complicate things by requiring that multiple components on the same page display that data in different ways. We are going to complicate things a little further by requiring that there is no global "parent" app. Instead, it is important that we can "sprinkle" the react componets on to our page.
+However, we are going to complicate things by requiring that multiple components on the same page display that data in different ways. We are going to complicate things a little further by requiring that there is no global "parent" app. Instead, it is important that we can "sprinkle" the react components on to our page.
 
-"Why?," you say. A lot of us are trying to augment legacy apps. While you can generally add sprinkles to a cake, it is often harder to convince your boss to let you re-bake the whole cake. Also, because coordinating such a large single root starts to become really complex as the app grows. And it becomes painflu once we need to start making ajax calls or, or add a backbone layer, or, well, anything not display related.
+"Why?," you say. A lot of us are trying to augment legacy apps. While you can generally add sprinkles to a cake, it is often harder to convince your boss to let you re-bake the whole cake. Also, because coordinating such a large single root starts to become really complex as the app grows. And it becomes painful once we need to start making ajax calls or, or add a backbone layer, or, well, anything not display related.
 
 
 Getting Started
@@ -196,7 +196,7 @@ There is a lot more detail, but this is where I'm going to stop. Why, because we
          ^                                      │
          └──────────────────────────────────────┘
 
-[Reflux](https://github.com/spoike/refluxjs) is an implemention of the basic concepts of Flux by Mikael Brassman. It greatly simplifies Flux by removing the dispatcher. Rather than actions flowing through a dispatcher, actions flow directly to the stores.
+[Reflux](https://github.com/spoike/refluxjs) is an implementation of the basic concepts of Flux by Mikael Brassman. It greatly simplifies Flux by removing the dispatcher. Rather than actions flowing through a dispatcher, actions flow directly to the stores.
 
 It is still possible to do everything with Reflux that can be done with Flux because stores can listen to other stores. However, in practice, I have yet to find that useful. Mostly, it just leads to overly complex code.
 
@@ -218,7 +218,7 @@ Then we need to create some actions, create a store to listen to those actions, 
 Create Actions
 --------------
 
-Reflux provides many ways to create actions. It provides options for sync/async, promises, callbacks, etc... However, everytime I have tried anything but the simplest, I have come to regret it. Flux, as an architecture, really wants us to stick to the `Actions -> Stores -> Components -> Actions` model. Chen Zihui wrote an interesting article, ["Hello, React.js,"](https://medium.com/@jetupper/hello-react-js-b87c63526e3a) about some common React.js/Flux mistakes. One of his stories speaks directly to complicating the Flux paradigm.
+Reflux provides many ways to create actions. It provides options for sync/async, promises, callbacks, etc... However, every time I have tried anything but the simplest, I have come to regret it. Flux, as an architecture, really wants us to stick to the `Actions -> Stores -> Components -> Actions` model. Chen Zihui wrote an interesting article, ["Hello, React.js,"](https://medium.com/@jetupper/hello-react-js-b87c63526e3a) about some common React.js/Flux mistakes. One of his stories speaks directly to complicating the Flux paradigm.
 
 So, what is the simple way that you will probably use 99.99999% of the time. `Reflux.createActions([])`. That's it, a single function call with an array of action names. Let's look at it in the case of `BlueBirdActions.jsx`.
 
@@ -423,11 +423,11 @@ Bugs
 
 Of course there are some bugs, there are always bugs. The biggest one is synchronization with the textarea. You probably did not notice, but typing in our textarea is "buggy". Everything is fine as long as we are appending to the end of the text, but try putting the cursor in the middle somewhere and type a few keys. You get one character at the cursor, and then the cursor jumps to the end of the line. This is a synchronization bug common to React and Flux.
 
-There are no great solutions to this problem. It is inherient to the Flux architecture. However, there are some workarounds that involve adding a slight buffer to the text area. I implemented one such workaround, [lazy-input (GitHub)](https://github.com/HurricaneJames/lazy-input), and published it to [lazy-input (npmjs)](https://www.npmjs.com/package/lazy-input).
+There are no great solutions to this problem. It is inherent to the Flux architecture. However, there are some workarounds that involve adding a slight buffer to the text area. I implemented one such workaround, [lazy-input (GitHub)](https://github.com/HurricaneJames/lazy-input), and published it to [lazy-input (npmjs)](https://www.npmjs.com/package/lazy-input).
 
 Simply add it to the `package.json` dependencies: `npm install --save lazy-input`.
 
-Then, require it in any modules that use `textarea` or `inpute` fields. So, for example, the render function in `BlueBird.jsx` will become:
+Then, require it in any modules that use `textarea` or `input` fields. So, for example, the render function in `BlueBird.jsx` will become:
 
     render: function() {
       return (
@@ -481,4 +481,4 @@ Conclusion
 
 We walked through adding Reflux to a relatively simple component. We looked at some of the advantages this gave us. We saw one of the big drawbacks, and we solved it. I certainly hope that this has been a useful walkthrough for you.
 
-Don't forget, the completed code is avaialble on GitHub [Dex v3.1](https://github.com/HurricaneJames/dex/tree/v3.1).
+Don't forget, the completed code is available on GitHub [Dex v3.1](https://github.com/HurricaneJames/dex/tree/v3.1).
