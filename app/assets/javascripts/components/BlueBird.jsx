@@ -1,33 +1,28 @@
 var React = require('react')
-  , Reflux = require('reflux')
-  , BlueBirdBody = require('./BlueBirdBody')
-  , BlueBirdActions = require('./BlueBirdActions')
-  , BlueBirdStore = require('./BlueBirdStore');
+  , LazyInput = require('lazy-input');
 
-var BlueBird = React.createClass({
-  displayName: 'BlueBird',
-  mixins: [Reflux.connect(BlueBirdStore, 'bluebirdBody')],
+var BODY_STYLE = {
+  border: '1px solid black',
+  backgroundColor: '#ddd',
+  maxWidth: 400
+};
+
+var BlueBirdBody = React.createClass({
+  displayName: 'BlueBirdBody',
   propTypes: {
-    reverse: React.PropTypes.bool
+    content: React.PropTypes.string,
+    onChange: React.PropTypes.func
   },
-  getContent: function() {
-    if(this.props.reverse) {
-      return this.state.bluebirdBody.split('').reverse().join('');
-    }else {
-      return this.state.bluebirdBody;
-    }
-  },
-  onBodyChange: function(newValue) {
-    // this.setState({bluebirdBody: newValue});
-    BlueBirdActions.inputChange(newValue);
+  onChange: function(e) {
+    this.props.onChange(e.target.value);
   },
   render: function() {
     return (
       <div>
-        <BlueBirdBody content={this.getContent()} onChange={this.onBodyChange} />
+        <span>Enter Some Text</span>
+        <LazyInput type="textarea" value={this.props.content} onChange={this.onChange} style={BODY_STYLE} rows={15} />
       </div>
     );
   }
 });
-
-module.exports = BlueBird;
+module.exports = BlueBirdBody;

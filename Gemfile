@@ -8,7 +8,7 @@ gem 'coffee-rails', '~> 4.0.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'therubyracer',  platforms: :ruby
 
-gem 'react-rails', '~> 1.0.0.pre', github: 'reactjs/react-rails'
+gem 'react-rails', '~>1.0.0'
 gem 'browserify-rails', '~>0.5'
 
 gem 'jquery-rails'
@@ -19,5 +19,5 @@ gem 'thin'
 
 gem 'carrierwave', '~> 0.10.0'
 
-gem 'foundation-rails', '~>5.4.1'
+gem 'foundation-rails', '~>5.5'
 gem 'foundation-icons-sass-rails', '~>3'
